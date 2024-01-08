@@ -13,7 +13,7 @@ type Wallet struct {
 // Fields of the Wallet.
 func (Wallet) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").NotEmpty().MaxLen(50),
+		field.String("name").NotEmpty().MaxLen(50).Unique(),
 		field.String("method"),
 	}
 }
