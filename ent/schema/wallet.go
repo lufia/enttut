@@ -1,6 +1,9 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/schema/field"
+)
 
 // Wallet holds the schema definition for the Wallet entity.
 type Wallet struct {
@@ -9,7 +12,10 @@ type Wallet struct {
 
 // Fields of the Wallet.
 func (Wallet) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.String("name").NotEmpty().MaxLen(50),
+		field.String("method"),
+	}
 }
 
 // Edges of the Wallet.
