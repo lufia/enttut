@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Wallet holds the schema definition for the Wallet entity.
@@ -15,6 +16,9 @@ type Wallet struct {
 // Fields of the Wallet.
 func (Wallet) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("id", uuid.UUID{}).
+			Unique().
+			Default(uuid.New),
 		field.String("name").
 			NotEmpty().
 			MaxLen(50).
