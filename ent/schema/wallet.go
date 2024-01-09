@@ -39,6 +39,9 @@ func (Wallet) Fields() []ent.Field {
 			Comment("名前"),
 		field.Enum("payment_method").
 			StorageKey("method").
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(20)",
+			}).
 			Values("cash", "credit-card", "e-money").
 			Comment("支払い方法"),
 	}
