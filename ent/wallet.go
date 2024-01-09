@@ -18,8 +18,8 @@ type Wallet struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
-	// Method holds the value of the "method" field.
-	Method string `json:"method,omitempty"`
+	// PaymentMethod holds the value of the "payment_method" field.
+	PaymentMethod wallet.PaymentMethod `json:"payment_method,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the WalletQuery when eager-loading is set.
 	Edges        WalletEdges `json:"edges"`
@@ -51,7 +51,7 @@ func (*Wallet) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case wallet.FieldID:
 			values[i] = new(sql.NullInt64)
-		case wallet.FieldName, wallet.FieldMethod:
+		case wallet.FieldName, wallet.FieldPaymentMethod:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -80,11 +80,11 @@ func (w *Wallet) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				w.Name = value.String
 			}
-		case wallet.FieldMethod:
+		case wallet.FieldPaymentMethod:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field method", values[i])
+				return fmt.Errorf("unexpected type %T for field payment_method", values[i])
 			} else if value.Valid {
-				w.Method = value.String
+				w.PaymentMethod = wallet.PaymentMethod(value.String)
 			}
 		default:
 			w.selectValues.Set(columns[i], values[i])
@@ -130,8 +130,8 @@ func (w *Wallet) String() string {
 	builder.WriteString("name=")
 	builder.WriteString(w.Name)
 	builder.WriteString(", ")
-	builder.WriteString("method=")
-	builder.WriteString(w.Method)
+	builder.WriteString("payment_method=")
+	builder.WriteString(fmt.Sprintf("%v", w.PaymentMethod))
 	builder.WriteByte(')')
 	return builder.String()
 }

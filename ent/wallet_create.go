@@ -26,9 +26,9 @@ func (wc *WalletCreate) SetName(s string) *WalletCreate {
 	return wc
 }
 
-// SetMethod sets the "method" field.
-func (wc *WalletCreate) SetMethod(s string) *WalletCreate {
-	wc.mutation.SetMethod(s)
+// SetPaymentMethod sets the "payment_method" field.
+func (wc *WalletCreate) SetPaymentMethod(wm wallet.PaymentMethod) *WalletCreate {
+	wc.mutation.SetPaymentMethod(wm)
 	return wc
 }
 
@@ -89,8 +89,13 @@ func (wc *WalletCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Wallet.name": %w`, err)}
 		}
 	}
-	if _, ok := wc.mutation.Method(); !ok {
-		return &ValidationError{Name: "method", err: errors.New(`ent: missing required field "Wallet.method"`)}
+	if _, ok := wc.mutation.PaymentMethod(); !ok {
+		return &ValidationError{Name: "payment_method", err: errors.New(`ent: missing required field "Wallet.payment_method"`)}
+	}
+	if v, ok := wc.mutation.PaymentMethod(); ok {
+		if err := wallet.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Wallet.payment_method": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -122,9 +127,9 @@ func (wc *WalletCreate) createSpec() (*Wallet, *sqlgraph.CreateSpec) {
 		_spec.SetField(wallet.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := wc.mutation.Method(); ok {
-		_spec.SetField(wallet.FieldMethod, field.TypeString, value)
-		_node.Method = value
+	if value, ok := wc.mutation.PaymentMethod(); ok {
+		_spec.SetField(wallet.FieldPaymentMethod, field.TypeEnum, value)
+		_node.PaymentMethod = value
 	}
 	if nodes := wc.mutation.TransactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

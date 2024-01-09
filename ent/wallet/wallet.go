@@ -3,6 +3,8 @@
 package wallet
 
 import (
+	"fmt"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -14,8 +16,8 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldMethod holds the string denoting the method field in the database.
-	FieldMethod = "method"
+	// FieldPaymentMethod holds the string denoting the payment_method field in the database.
+	FieldPaymentMethod = "method"
 	// EdgeTransactions holds the string denoting the transactions edge name in mutations.
 	EdgeTransactions = "transactions"
 	// Table holds the table name of the wallet in the database.
@@ -33,7 +35,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
-	FieldMethod,
+	FieldPaymentMethod,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -51,6 +53,30 @@ var (
 	NameValidator func(string) error
 )
 
+// PaymentMethod defines the type for the "payment_method" enum field.
+type PaymentMethod string
+
+// PaymentMethod values.
+const (
+	PaymentMethodCash       PaymentMethod = "cash"
+	PaymentMethodCreditCard PaymentMethod = "credit-card"
+	PaymentMethodEMoney     PaymentMethod = "e-money"
+)
+
+func (pm PaymentMethod) String() string {
+	return string(pm)
+}
+
+// PaymentMethodValidator is a validator for the "payment_method" field enum values. It is called by the builders before save.
+func PaymentMethodValidator(pm PaymentMethod) error {
+	switch pm {
+	case PaymentMethodCash, PaymentMethodCreditCard, PaymentMethodEMoney:
+		return nil
+	default:
+		return fmt.Errorf("wallet: invalid enum value for payment_method field: %q", pm)
+	}
+}
+
 // OrderOption defines the ordering options for the Wallet queries.
 type OrderOption func(*sql.Selector)
 
@@ -64,9 +90,9 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByMethod orders the results by the method field.
-func ByMethod(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMethod, opts...).ToFunc()
+// ByPaymentMethod orders the results by the payment_method field.
+func ByPaymentMethod(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaymentMethod, opts...).ToFunc()
 }
 
 // ByTransactionsCount orders the results by transactions count.

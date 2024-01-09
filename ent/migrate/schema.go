@@ -41,7 +41,7 @@ var (
 	WalletsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Unique: true, Size: 50, SchemaType: map[string]string{"postgres": "varchar(50)"}},
-		{Name: "method", Type: field.TypeString},
+		{Name: "method", Type: field.TypeEnum, Enums: []string{"cash", "credit-card", "e-money"}},
 	}
 	// WalletsTable holds the schema information for the "wallets" table.
 	WalletsTable = &schema.Table{

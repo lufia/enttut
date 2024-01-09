@@ -58,11 +58,6 @@ func Name(v string) predicate.Wallet {
 	return predicate.Wallet(sql.FieldEQ(FieldName, v))
 }
 
-// Method applies equality check predicate on the "method" field. It's identical to MethodEQ.
-func Method(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldEQ(FieldMethod, v))
-}
-
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Wallet {
 	return predicate.Wallet(sql.FieldEQ(FieldName, v))
@@ -128,69 +123,24 @@ func NameContainsFold(v string) predicate.Wallet {
 	return predicate.Wallet(sql.FieldContainsFold(FieldName, v))
 }
 
-// MethodEQ applies the EQ predicate on the "method" field.
-func MethodEQ(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldEQ(FieldMethod, v))
+// PaymentMethodEQ applies the EQ predicate on the "payment_method" field.
+func PaymentMethodEQ(v PaymentMethod) predicate.Wallet {
+	return predicate.Wallet(sql.FieldEQ(FieldPaymentMethod, v))
 }
 
-// MethodNEQ applies the NEQ predicate on the "method" field.
-func MethodNEQ(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldNEQ(FieldMethod, v))
+// PaymentMethodNEQ applies the NEQ predicate on the "payment_method" field.
+func PaymentMethodNEQ(v PaymentMethod) predicate.Wallet {
+	return predicate.Wallet(sql.FieldNEQ(FieldPaymentMethod, v))
 }
 
-// MethodIn applies the In predicate on the "method" field.
-func MethodIn(vs ...string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldIn(FieldMethod, vs...))
+// PaymentMethodIn applies the In predicate on the "payment_method" field.
+func PaymentMethodIn(vs ...PaymentMethod) predicate.Wallet {
+	return predicate.Wallet(sql.FieldIn(FieldPaymentMethod, vs...))
 }
 
-// MethodNotIn applies the NotIn predicate on the "method" field.
-func MethodNotIn(vs ...string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldNotIn(FieldMethod, vs...))
-}
-
-// MethodGT applies the GT predicate on the "method" field.
-func MethodGT(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldGT(FieldMethod, v))
-}
-
-// MethodGTE applies the GTE predicate on the "method" field.
-func MethodGTE(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldGTE(FieldMethod, v))
-}
-
-// MethodLT applies the LT predicate on the "method" field.
-func MethodLT(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldLT(FieldMethod, v))
-}
-
-// MethodLTE applies the LTE predicate on the "method" field.
-func MethodLTE(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldLTE(FieldMethod, v))
-}
-
-// MethodContains applies the Contains predicate on the "method" field.
-func MethodContains(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldContains(FieldMethod, v))
-}
-
-// MethodHasPrefix applies the HasPrefix predicate on the "method" field.
-func MethodHasPrefix(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldHasPrefix(FieldMethod, v))
-}
-
-// MethodHasSuffix applies the HasSuffix predicate on the "method" field.
-func MethodHasSuffix(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldHasSuffix(FieldMethod, v))
-}
-
-// MethodEqualFold applies the EqualFold predicate on the "method" field.
-func MethodEqualFold(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldEqualFold(FieldMethod, v))
-}
-
-// MethodContainsFold applies the ContainsFold predicate on the "method" field.
-func MethodContainsFold(v string) predicate.Wallet {
-	return predicate.Wallet(sql.FieldContainsFold(FieldMethod, v))
+// PaymentMethodNotIn applies the NotIn predicate on the "payment_method" field.
+func PaymentMethodNotIn(vs ...PaymentMethod) predicate.Wallet {
+	return predicate.Wallet(sql.FieldNotIn(FieldPaymentMethod, vs...))
 }
 
 // HasTransactions applies the HasEdge predicate on the "transactions" edge.

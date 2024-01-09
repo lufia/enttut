@@ -42,16 +42,16 @@ func (wu *WalletUpdate) SetNillableName(s *string) *WalletUpdate {
 	return wu
 }
 
-// SetMethod sets the "method" field.
-func (wu *WalletUpdate) SetMethod(s string) *WalletUpdate {
-	wu.mutation.SetMethod(s)
+// SetPaymentMethod sets the "payment_method" field.
+func (wu *WalletUpdate) SetPaymentMethod(wm wallet.PaymentMethod) *WalletUpdate {
+	wu.mutation.SetPaymentMethod(wm)
 	return wu
 }
 
-// SetNillableMethod sets the "method" field if the given value is not nil.
-func (wu *WalletUpdate) SetNillableMethod(s *string) *WalletUpdate {
-	if s != nil {
-		wu.SetMethod(*s)
+// SetNillablePaymentMethod sets the "payment_method" field if the given value is not nil.
+func (wu *WalletUpdate) SetNillablePaymentMethod(wm *wallet.PaymentMethod) *WalletUpdate {
+	if wm != nil {
+		wu.SetPaymentMethod(*wm)
 	}
 	return wu
 }
@@ -131,6 +131,11 @@ func (wu *WalletUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Wallet.name": %w`, err)}
 		}
 	}
+	if v, ok := wu.mutation.PaymentMethod(); ok {
+		if err := wallet.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Wallet.payment_method": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -149,8 +154,8 @@ func (wu *WalletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := wu.mutation.Name(); ok {
 		_spec.SetField(wallet.FieldName, field.TypeString, value)
 	}
-	if value, ok := wu.mutation.Method(); ok {
-		_spec.SetField(wallet.FieldMethod, field.TypeString, value)
+	if value, ok := wu.mutation.PaymentMethod(); ok {
+		_spec.SetField(wallet.FieldPaymentMethod, field.TypeEnum, value)
 	}
 	if wu.mutation.TransactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -231,16 +236,16 @@ func (wuo *WalletUpdateOne) SetNillableName(s *string) *WalletUpdateOne {
 	return wuo
 }
 
-// SetMethod sets the "method" field.
-func (wuo *WalletUpdateOne) SetMethod(s string) *WalletUpdateOne {
-	wuo.mutation.SetMethod(s)
+// SetPaymentMethod sets the "payment_method" field.
+func (wuo *WalletUpdateOne) SetPaymentMethod(wm wallet.PaymentMethod) *WalletUpdateOne {
+	wuo.mutation.SetPaymentMethod(wm)
 	return wuo
 }
 
-// SetNillableMethod sets the "method" field if the given value is not nil.
-func (wuo *WalletUpdateOne) SetNillableMethod(s *string) *WalletUpdateOne {
-	if s != nil {
-		wuo.SetMethod(*s)
+// SetNillablePaymentMethod sets the "payment_method" field if the given value is not nil.
+func (wuo *WalletUpdateOne) SetNillablePaymentMethod(wm *wallet.PaymentMethod) *WalletUpdateOne {
+	if wm != nil {
+		wuo.SetPaymentMethod(*wm)
 	}
 	return wuo
 }
@@ -333,6 +338,11 @@ func (wuo *WalletUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Wallet.name": %w`, err)}
 		}
 	}
+	if v, ok := wuo.mutation.PaymentMethod(); ok {
+		if err := wallet.PaymentMethodValidator(v); err != nil {
+			return &ValidationError{Name: "payment_method", err: fmt.Errorf(`ent: validator failed for field "Wallet.payment_method": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -368,8 +378,8 @@ func (wuo *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err err
 	if value, ok := wuo.mutation.Name(); ok {
 		_spec.SetField(wallet.FieldName, field.TypeString, value)
 	}
-	if value, ok := wuo.mutation.Method(); ok {
-		_spec.SetField(wallet.FieldMethod, field.TypeString, value)
+	if value, ok := wuo.mutation.PaymentMethod(); ok {
+		_spec.SetField(wallet.FieldPaymentMethod, field.TypeEnum, value)
 	}
 	if wuo.mutation.TransactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{

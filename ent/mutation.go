@@ -636,7 +636,7 @@ type WalletMutation struct {
 	typ                 string
 	id                  *int
 	name                *string
-	method              *string
+	payment_method      *wallet.PaymentMethod
 	clearedFields       map[string]struct{}
 	transactions        map[int]struct{}
 	removedtransactions map[int]struct{}
@@ -780,40 +780,40 @@ func (m *WalletMutation) ResetName() {
 	m.name = nil
 }
 
-// SetMethod sets the "method" field.
-func (m *WalletMutation) SetMethod(s string) {
-	m.method = &s
+// SetPaymentMethod sets the "payment_method" field.
+func (m *WalletMutation) SetPaymentMethod(wm wallet.PaymentMethod) {
+	m.payment_method = &wm
 }
 
-// Method returns the value of the "method" field in the mutation.
-func (m *WalletMutation) Method() (r string, exists bool) {
-	v := m.method
+// PaymentMethod returns the value of the "payment_method" field in the mutation.
+func (m *WalletMutation) PaymentMethod() (r wallet.PaymentMethod, exists bool) {
+	v := m.payment_method
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldMethod returns the old "method" field's value of the Wallet entity.
+// OldPaymentMethod returns the old "payment_method" field's value of the Wallet entity.
 // If the Wallet object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WalletMutation) OldMethod(ctx context.Context) (v string, err error) {
+func (m *WalletMutation) OldPaymentMethod(ctx context.Context) (v wallet.PaymentMethod, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMethod is only allowed on UpdateOne operations")
+		return v, errors.New("OldPaymentMethod is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMethod requires an ID field in the mutation")
+		return v, errors.New("OldPaymentMethod requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMethod: %w", err)
+		return v, fmt.Errorf("querying old value for OldPaymentMethod: %w", err)
 	}
-	return oldValue.Method, nil
+	return oldValue.PaymentMethod, nil
 }
 
-// ResetMethod resets all changes to the "method" field.
-func (m *WalletMutation) ResetMethod() {
-	m.method = nil
+// ResetPaymentMethod resets all changes to the "payment_method" field.
+func (m *WalletMutation) ResetPaymentMethod() {
+	m.payment_method = nil
 }
 
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by ids.
@@ -908,8 +908,8 @@ func (m *WalletMutation) Fields() []string {
 	if m.name != nil {
 		fields = append(fields, wallet.FieldName)
 	}
-	if m.method != nil {
-		fields = append(fields, wallet.FieldMethod)
+	if m.payment_method != nil {
+		fields = append(fields, wallet.FieldPaymentMethod)
 	}
 	return fields
 }
@@ -921,8 +921,8 @@ func (m *WalletMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case wallet.FieldName:
 		return m.Name()
-	case wallet.FieldMethod:
-		return m.Method()
+	case wallet.FieldPaymentMethod:
+		return m.PaymentMethod()
 	}
 	return nil, false
 }
@@ -934,8 +934,8 @@ func (m *WalletMutation) OldField(ctx context.Context, name string) (ent.Value, 
 	switch name {
 	case wallet.FieldName:
 		return m.OldName(ctx)
-	case wallet.FieldMethod:
-		return m.OldMethod(ctx)
+	case wallet.FieldPaymentMethod:
+		return m.OldPaymentMethod(ctx)
 	}
 	return nil, fmt.Errorf("unknown Wallet field %s", name)
 }
@@ -952,12 +952,12 @@ func (m *WalletMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case wallet.FieldMethod:
-		v, ok := value.(string)
+	case wallet.FieldPaymentMethod:
+		v, ok := value.(wallet.PaymentMethod)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetMethod(v)
+		m.SetPaymentMethod(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Wallet field %s", name)
@@ -1011,8 +1011,8 @@ func (m *WalletMutation) ResetField(name string) error {
 	case wallet.FieldName:
 		m.ResetName()
 		return nil
-	case wallet.FieldMethod:
-		m.ResetMethod()
+	case wallet.FieldPaymentMethod:
+		m.ResetPaymentMethod()
 		return nil
 	}
 	return fmt.Errorf("unknown Wallet field %s", name)
