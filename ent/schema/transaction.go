@@ -18,7 +18,7 @@ func (Transaction) Fields() []ent.Field {
 		field.Int("wallet_id"),
 		field.Time("paid_date"),
 		field.Int("amount"),
-		field.Text("memo"),
+		field.Text("memo").Optional(),
 	}
 }
 
