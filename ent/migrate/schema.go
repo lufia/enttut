@@ -40,7 +40,7 @@ var (
 	// WalletsColumns holds the columns for the "wallets" table.
 	WalletsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Size: 50},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 50, SchemaType: map[string]string{"postgres": "varchar(50)"}},
 		{Name: "method", Type: field.TypeString},
 	}
 	// WalletsTable holds the schema information for the "wallets" table.

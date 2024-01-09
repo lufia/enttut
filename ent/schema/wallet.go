@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -14,7 +15,13 @@ type Wallet struct {
 // Fields of the Wallet.
 func (Wallet) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").NotEmpty().MaxLen(50).Unique(),
+		field.String("name").
+			NotEmpty().
+			MaxLen(50).
+			SchemaType(map[string]string{
+				dialect.Postgres: "varchar(50)",
+			}).
+			Unique(),
 		field.String("method"),
 	}
 }
