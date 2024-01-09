@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/predicate"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
@@ -57,14 +58,14 @@ func (wu *WalletUpdate) SetNillablePaymentMethod(wm *wallet.PaymentMethod) *Wall
 }
 
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
-func (wu *WalletUpdate) AddTransactionIDs(ids ...int) *WalletUpdate {
+func (wu *WalletUpdate) AddTransactionIDs(ids ...uuid.UUID) *WalletUpdate {
 	wu.mutation.AddTransactionIDs(ids...)
 	return wu
 }
 
 // AddTransactions adds the "transactions" edges to the Transaction entity.
 func (wu *WalletUpdate) AddTransactions(t ...*Transaction) *WalletUpdate {
-	ids := make([]int, len(t))
+	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -83,14 +84,14 @@ func (wu *WalletUpdate) ClearTransactions() *WalletUpdate {
 }
 
 // RemoveTransactionIDs removes the "transactions" edge to Transaction entities by IDs.
-func (wu *WalletUpdate) RemoveTransactionIDs(ids ...int) *WalletUpdate {
+func (wu *WalletUpdate) RemoveTransactionIDs(ids ...uuid.UUID) *WalletUpdate {
 	wu.mutation.RemoveTransactionIDs(ids...)
 	return wu
 }
 
 // RemoveTransactions removes "transactions" edges to Transaction entities.
 func (wu *WalletUpdate) RemoveTransactions(t ...*Transaction) *WalletUpdate {
-	ids := make([]int, len(t))
+	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -143,7 +144,7 @@ func (wu *WalletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := wu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID))
 	if ps := wu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -165,7 +166,7 @@ func (wu *WalletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -178,7 +179,7 @@ func (wu *WalletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -194,7 +195,7 @@ func (wu *WalletUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -251,14 +252,14 @@ func (wuo *WalletUpdateOne) SetNillablePaymentMethod(wm *wallet.PaymentMethod) *
 }
 
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
-func (wuo *WalletUpdateOne) AddTransactionIDs(ids ...int) *WalletUpdateOne {
+func (wuo *WalletUpdateOne) AddTransactionIDs(ids ...uuid.UUID) *WalletUpdateOne {
 	wuo.mutation.AddTransactionIDs(ids...)
 	return wuo
 }
 
 // AddTransactions adds the "transactions" edges to the Transaction entity.
 func (wuo *WalletUpdateOne) AddTransactions(t ...*Transaction) *WalletUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -277,14 +278,14 @@ func (wuo *WalletUpdateOne) ClearTransactions() *WalletUpdateOne {
 }
 
 // RemoveTransactionIDs removes the "transactions" edge to Transaction entities by IDs.
-func (wuo *WalletUpdateOne) RemoveTransactionIDs(ids ...int) *WalletUpdateOne {
+func (wuo *WalletUpdateOne) RemoveTransactionIDs(ids ...uuid.UUID) *WalletUpdateOne {
 	wuo.mutation.RemoveTransactionIDs(ids...)
 	return wuo
 }
 
 // RemoveTransactions removes "transactions" edges to Transaction entities.
 func (wuo *WalletUpdateOne) RemoveTransactions(t ...*Transaction) *WalletUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -350,7 +351,7 @@ func (wuo *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err err
 	if err := wuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID))
 	id, ok := wuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Wallet.id" for update`)}
@@ -389,7 +390,7 @@ func (wuo *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err err
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -402,7 +403,7 @@ func (wuo *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err err
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -418,7 +419,7 @@ func (wuo *WalletUpdateOne) sqlSave(ctx context.Context) (_node *Wallet, err err
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

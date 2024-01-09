@@ -40,7 +40,7 @@ func (wd *WalletDelete) ExecX(ctx context.Context) int {
 }
 
 func (wd *WalletDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(wallet.Table, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(wallet.Table, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID))
 	if ps := wd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

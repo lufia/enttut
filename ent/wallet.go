@@ -8,17 +8,18 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/wallet"
 )
 
-// Wallet is the model entity for the Wallet schema.
+// walletを扱うテーブル
 type Wallet struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// Name holds the value of the "name" field.
+	ID uuid.UUID `json:"id,omitempty"`
+	// 名前
 	Name string `json:"name,omitempty"`
-	// PaymentMethod holds the value of the "payment_method" field.
+	// 支払い方法
 	PaymentMethod wallet.PaymentMethod `json:"payment_method,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the WalletQuery when eager-loading is set.
@@ -49,10 +50,10 @@ func (*Wallet) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case wallet.FieldID:
-			values[i] = new(sql.NullInt64)
 		case wallet.FieldName, wallet.FieldPaymentMethod:
 			values[i] = new(sql.NullString)
+		case wallet.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -69,11 +70,11 @@ func (w *Wallet) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case wallet.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				w.ID = *value
 			}
-			w.ID = int(value.Int64)
 		case wallet.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])

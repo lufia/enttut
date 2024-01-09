@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/predicate"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
@@ -30,15 +31,15 @@ func (tu *TransactionUpdate) Where(ps ...predicate.Transaction) *TransactionUpda
 }
 
 // SetWalletID sets the "wallet_id" field.
-func (tu *TransactionUpdate) SetWalletID(i int) *TransactionUpdate {
-	tu.mutation.SetWalletID(i)
+func (tu *TransactionUpdate) SetWalletID(u uuid.UUID) *TransactionUpdate {
+	tu.mutation.SetWalletID(u)
 	return tu
 }
 
 // SetNillableWalletID sets the "wallet_id" field if the given value is not nil.
-func (tu *TransactionUpdate) SetNillableWalletID(i *int) *TransactionUpdate {
-	if i != nil {
-		tu.SetWalletID(*i)
+func (tu *TransactionUpdate) SetNillableWalletID(u *uuid.UUID) *TransactionUpdate {
+	if u != nil {
+		tu.SetWalletID(*u)
 	}
 	return tu
 }
@@ -153,7 +154,7 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := tu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID))
 	if ps := tu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -184,7 +185,7 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{transaction.WalletColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -197,7 +198,7 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{transaction.WalletColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -226,15 +227,15 @@ type TransactionUpdateOne struct {
 }
 
 // SetWalletID sets the "wallet_id" field.
-func (tuo *TransactionUpdateOne) SetWalletID(i int) *TransactionUpdateOne {
-	tuo.mutation.SetWalletID(i)
+func (tuo *TransactionUpdateOne) SetWalletID(u uuid.UUID) *TransactionUpdateOne {
+	tuo.mutation.SetWalletID(u)
 	return tuo
 }
 
 // SetNillableWalletID sets the "wallet_id" field if the given value is not nil.
-func (tuo *TransactionUpdateOne) SetNillableWalletID(i *int) *TransactionUpdateOne {
-	if i != nil {
-		tuo.SetWalletID(*i)
+func (tuo *TransactionUpdateOne) SetNillableWalletID(u *uuid.UUID) *TransactionUpdateOne {
+	if u != nil {
+		tuo.SetWalletID(*u)
 	}
 	return tuo
 }
@@ -362,7 +363,7 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 	if err := tuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID))
 	id, ok := tuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Transaction.id" for update`)}
@@ -410,7 +411,7 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 			Columns: []string{transaction.WalletColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -423,7 +424,7 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 			Columns: []string{transaction.WalletColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

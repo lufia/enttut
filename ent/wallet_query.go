@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/predicate"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
@@ -106,8 +107,8 @@ func (wq *WalletQuery) FirstX(ctx context.Context) *Wallet {
 
 // FirstID returns the first Wallet ID from the query.
 // Returns a *NotFoundError when no Wallet ID was found.
-func (wq *WalletQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (wq *WalletQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = wq.Limit(1).IDs(setContextOp(ctx, wq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +120,7 @@ func (wq *WalletQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (wq *WalletQuery) FirstIDX(ctx context.Context) int {
+func (wq *WalletQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := wq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +158,8 @@ func (wq *WalletQuery) OnlyX(ctx context.Context) *Wallet {
 // OnlyID is like Only, but returns the only Wallet ID in the query.
 // Returns a *NotSingularError when more than one Wallet ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (wq *WalletQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (wq *WalletQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = wq.Limit(2).IDs(setContextOp(ctx, wq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +175,7 @@ func (wq *WalletQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (wq *WalletQuery) OnlyIDX(ctx context.Context) int {
+func (wq *WalletQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := wq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +203,7 @@ func (wq *WalletQuery) AllX(ctx context.Context) []*Wallet {
 }
 
 // IDs executes the query and returns a list of Wallet IDs.
-func (wq *WalletQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (wq *WalletQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if wq.ctx.Unique == nil && wq.path != nil {
 		wq.Unique(true)
 	}
@@ -214,7 +215,7 @@ func (wq *WalletQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (wq *WalletQuery) IDsX(ctx context.Context) []int {
+func (wq *WalletQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := wq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -404,7 +405,7 @@ func (wq *WalletQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Walle
 
 func (wq *WalletQuery) loadTransactions(ctx context.Context, query *TransactionQuery, nodes []*Wallet, init func(*Wallet), assign func(*Wallet, *Transaction)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Wallet)
+	nodeids := make(map[uuid.UUID]*Wallet)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -443,7 +444,7 @@ func (wq *WalletQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (wq *WalletQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(wallet.Table, wallet.Columns, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID))
 	_spec.From = wq.sql
 	if unique := wq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

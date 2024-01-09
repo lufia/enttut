@@ -7,56 +7,57 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Transaction {
+func ID(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Transaction {
+func IDEQ(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Transaction {
+func IDNEQ(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Transaction {
+func IDIn(ids ...uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Transaction {
+func IDNotIn(ids ...uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Transaction {
+func IDGT(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Transaction {
+func IDGTE(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Transaction {
+func IDLT(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Transaction {
+func IDLTE(id uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLTE(FieldID, id))
 }
 
 // WalletID applies equality check predicate on the "wallet_id" field. It's identical to WalletIDEQ.
-func WalletID(v int) predicate.Transaction {
+func WalletID(v uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldWalletID, v))
 }
 
@@ -76,22 +77,22 @@ func Memo(v string) predicate.Transaction {
 }
 
 // WalletIDEQ applies the EQ predicate on the "wallet_id" field.
-func WalletIDEQ(v int) predicate.Transaction {
+func WalletIDEQ(v uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldWalletID, v))
 }
 
 // WalletIDNEQ applies the NEQ predicate on the "wallet_id" field.
-func WalletIDNEQ(v int) predicate.Transaction {
+func WalletIDNEQ(v uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNEQ(FieldWalletID, v))
 }
 
 // WalletIDIn applies the In predicate on the "wallet_id" field.
-func WalletIDIn(vs ...int) predicate.Transaction {
+func WalletIDIn(vs ...uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldIn(FieldWalletID, vs...))
 }
 
 // WalletIDNotIn applies the NotIn predicate on the "wallet_id" field.
-func WalletIDNotIn(vs ...int) predicate.Transaction {
+func WalletIDNotIn(vs ...uuid.UUID) predicate.Transaction {
 	return predicate.Transaction(sql.FieldNotIn(FieldWalletID, vs...))
 }
 

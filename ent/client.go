@@ -9,6 +9,7 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/migrate"
 
 	"entgo.io/ent"
@@ -268,7 +269,7 @@ func (c *TransactionClient) UpdateOne(t *Transaction) *TransactionUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TransactionClient) UpdateOneID(id int) *TransactionUpdateOne {
+func (c *TransactionClient) UpdateOneID(id uuid.UUID) *TransactionUpdateOne {
 	mutation := newTransactionMutation(c.config, OpUpdateOne, withTransactionID(id))
 	return &TransactionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -285,7 +286,7 @@ func (c *TransactionClient) DeleteOne(t *Transaction) *TransactionDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TransactionClient) DeleteOneID(id int) *TransactionDeleteOne {
+func (c *TransactionClient) DeleteOneID(id uuid.UUID) *TransactionDeleteOne {
 	builder := c.Delete().Where(transaction.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -302,12 +303,12 @@ func (c *TransactionClient) Query() *TransactionQuery {
 }
 
 // Get returns a Transaction entity by its id.
-func (c *TransactionClient) Get(ctx context.Context, id int) (*Transaction, error) {
+func (c *TransactionClient) Get(ctx context.Context, id uuid.UUID) (*Transaction, error) {
 	return c.Query().Where(transaction.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TransactionClient) GetX(ctx context.Context, id int) *Transaction {
+func (c *TransactionClient) GetX(ctx context.Context, id uuid.UUID) *Transaction {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -417,7 +418,7 @@ func (c *WalletClient) UpdateOne(w *Wallet) *WalletUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *WalletClient) UpdateOneID(id int) *WalletUpdateOne {
+func (c *WalletClient) UpdateOneID(id uuid.UUID) *WalletUpdateOne {
 	mutation := newWalletMutation(c.config, OpUpdateOne, withWalletID(id))
 	return &WalletUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -434,7 +435,7 @@ func (c *WalletClient) DeleteOne(w *Wallet) *WalletDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *WalletClient) DeleteOneID(id int) *WalletDeleteOne {
+func (c *WalletClient) DeleteOneID(id uuid.UUID) *WalletDeleteOne {
 	builder := c.Delete().Where(wallet.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -451,12 +452,12 @@ func (c *WalletClient) Query() *WalletQuery {
 }
 
 // Get returns a Wallet entity by its id.
-func (c *WalletClient) Get(ctx context.Context, id int) (*Wallet, error) {
+func (c *WalletClient) Get(ctx context.Context, id uuid.UUID) (*Wallet, error) {
 	return c.Query().Where(wallet.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *WalletClient) GetX(ctx context.Context, id int) *Wallet {
+func (c *WalletClient) GetX(ctx context.Context, id uuid.UUID) *Wallet {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

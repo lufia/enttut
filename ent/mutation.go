@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/predicate"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
@@ -34,13 +35,13 @@ type TransactionMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	paid_date     *time.Time
 	amount        *int
 	addamount     *int
 	memo          *string
 	clearedFields map[string]struct{}
-	wallet        *int
+	wallet        *uuid.UUID
 	clearedwallet bool
 	done          bool
 	oldValue      func(context.Context) (*Transaction, error)
@@ -67,7 +68,7 @@ func newTransactionMutation(c config, op Op, opts ...transactionOption) *Transac
 }
 
 // withTransactionID sets the ID field of the mutation.
-func withTransactionID(id int) transactionOption {
+func withTransactionID(id uuid.UUID) transactionOption {
 	return func(m *TransactionMutation) {
 		var (
 			err   error
@@ -117,9 +118,15 @@ func (m TransactionMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Transaction entities.
+func (m *TransactionMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *TransactionMutation) ID() (id int, exists bool) {
+func (m *TransactionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -130,12 +137,12 @@ func (m *TransactionMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *TransactionMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *TransactionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -146,12 +153,12 @@ func (m *TransactionMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetWalletID sets the "wallet_id" field.
-func (m *TransactionMutation) SetWalletID(i int) {
-	m.wallet = &i
+func (m *TransactionMutation) SetWalletID(u uuid.UUID) {
+	m.wallet = &u
 }
 
 // WalletID returns the value of the "wallet_id" field in the mutation.
-func (m *TransactionMutation) WalletID() (r int, exists bool) {
+func (m *TransactionMutation) WalletID() (r uuid.UUID, exists bool) {
 	v := m.wallet
 	if v == nil {
 		return
@@ -162,7 +169,7 @@ func (m *TransactionMutation) WalletID() (r int, exists bool) {
 // OldWalletID returns the old "wallet_id" field's value of the Transaction entity.
 // If the Transaction object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TransactionMutation) OldWalletID(ctx context.Context) (v int, err error) {
+func (m *TransactionMutation) OldWalletID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldWalletID is only allowed on UpdateOne operations")
 	}
@@ -336,7 +343,7 @@ func (m *TransactionMutation) WalletCleared() bool {
 // WalletIDs returns the "wallet" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // WalletID instead. It exists only for internal usage by the builders.
-func (m *TransactionMutation) WalletIDs() (ids []int) {
+func (m *TransactionMutation) WalletIDs() (ids []uuid.UUID) {
 	if id := m.wallet; id != nil {
 		ids = append(ids, *id)
 	}
@@ -439,7 +446,7 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case transaction.FieldWalletID:
-		v, ok := value.(int)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -634,12 +641,12 @@ type WalletMutation struct {
 	config
 	op                  Op
 	typ                 string
-	id                  *int
+	id                  *uuid.UUID
 	name                *string
 	payment_method      *wallet.PaymentMethod
 	clearedFields       map[string]struct{}
-	transactions        map[int]struct{}
-	removedtransactions map[int]struct{}
+	transactions        map[uuid.UUID]struct{}
+	removedtransactions map[uuid.UUID]struct{}
 	clearedtransactions bool
 	done                bool
 	oldValue            func(context.Context) (*Wallet, error)
@@ -666,7 +673,7 @@ func newWalletMutation(c config, op Op, opts ...walletOption) *WalletMutation {
 }
 
 // withWalletID sets the ID field of the mutation.
-func withWalletID(id int) walletOption {
+func withWalletID(id uuid.UUID) walletOption {
 	return func(m *WalletMutation) {
 		var (
 			err   error
@@ -716,9 +723,15 @@ func (m WalletMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Wallet entities.
+func (m *WalletMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *WalletMutation) ID() (id int, exists bool) {
+func (m *WalletMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -729,12 +742,12 @@ func (m *WalletMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *WalletMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *WalletMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -817,9 +830,9 @@ func (m *WalletMutation) ResetPaymentMethod() {
 }
 
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by ids.
-func (m *WalletMutation) AddTransactionIDs(ids ...int) {
+func (m *WalletMutation) AddTransactionIDs(ids ...uuid.UUID) {
 	if m.transactions == nil {
-		m.transactions = make(map[int]struct{})
+		m.transactions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.transactions[ids[i]] = struct{}{}
@@ -837,9 +850,9 @@ func (m *WalletMutation) TransactionsCleared() bool {
 }
 
 // RemoveTransactionIDs removes the "transactions" edge to the Transaction entity by IDs.
-func (m *WalletMutation) RemoveTransactionIDs(ids ...int) {
+func (m *WalletMutation) RemoveTransactionIDs(ids ...uuid.UUID) {
 	if m.removedtransactions == nil {
-		m.removedtransactions = make(map[int]struct{})
+		m.removedtransactions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.transactions, ids[i])
@@ -848,7 +861,7 @@ func (m *WalletMutation) RemoveTransactionIDs(ids ...int) {
 }
 
 // RemovedTransactions returns the removed IDs of the "transactions" edge to the Transaction entity.
-func (m *WalletMutation) RemovedTransactionsIDs() (ids []int) {
+func (m *WalletMutation) RemovedTransactionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedtransactions {
 		ids = append(ids, id)
 	}
@@ -856,7 +869,7 @@ func (m *WalletMutation) RemovedTransactionsIDs() (ids []int) {
 }
 
 // TransactionsIDs returns the "transactions" edge IDs in the mutation.
-func (m *WalletMutation) TransactionsIDs() (ids []int) {
+func (m *WalletMutation) TransactionsIDs() (ids []uuid.UUID) {
 	for id := range m.transactions {
 		ids = append(ids, id)
 	}

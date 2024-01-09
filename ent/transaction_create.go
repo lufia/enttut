@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
 )
@@ -22,8 +23,8 @@ type TransactionCreate struct {
 }
 
 // SetWalletID sets the "wallet_id" field.
-func (tc *TransactionCreate) SetWalletID(i int) *TransactionCreate {
-	tc.mutation.SetWalletID(i)
+func (tc *TransactionCreate) SetWalletID(u uuid.UUID) *TransactionCreate {
+	tc.mutation.SetWalletID(u)
 	return tc
 }
 
@@ -53,6 +54,20 @@ func (tc *TransactionCreate) SetNillableMemo(s *string) *TransactionCreate {
 	return tc
 }
 
+// SetID sets the "id" field.
+func (tc *TransactionCreate) SetID(u uuid.UUID) *TransactionCreate {
+	tc.mutation.SetID(u)
+	return tc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (tc *TransactionCreate) SetNillableID(u *uuid.UUID) *TransactionCreate {
+	if u != nil {
+		tc.SetID(*u)
+	}
+	return tc
+}
+
 // SetWallet sets the "wallet" edge to the Wallet entity.
 func (tc *TransactionCreate) SetWallet(w *Wallet) *TransactionCreate {
 	return tc.SetWalletID(w.ID)
@@ -65,6 +80,7 @@ func (tc *TransactionCreate) Mutation() *TransactionMutation {
 
 // Save creates the Transaction in the database.
 func (tc *TransactionCreate) Save(ctx context.Context) (*Transaction, error) {
+	tc.defaults()
 	return withHooks(ctx, tc.sqlSave, tc.mutation, tc.hooks)
 }
 
@@ -87,6 +103,14 @@ func (tc *TransactionCreate) Exec(ctx context.Context) error {
 func (tc *TransactionCreate) ExecX(ctx context.Context) {
 	if err := tc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (tc *TransactionCreate) defaults() {
+	if _, ok := tc.mutation.ID(); !ok {
+		v := transaction.DefaultID()
+		tc.mutation.SetID(v)
 	}
 }
 
@@ -118,8 +142,13 @@ func (tc *TransactionCreate) sqlSave(ctx context.Context) (*Transaction, error) 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	tc.mutation.id = &_node.ID
 	tc.mutation.done = true
 	return _node, nil
@@ -128,8 +157,12 @@ func (tc *TransactionCreate) sqlSave(ctx context.Context) (*Transaction, error) 
 func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Transaction{config: tc.config}
-		_spec = sqlgraph.NewCreateSpec(transaction.Table, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(transaction.Table, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID))
 	)
+	if id, ok := tc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := tc.mutation.PaidDate(); ok {
 		_spec.SetField(transaction.FieldPaidDate, field.TypeTime, value)
 		_node.PaidDate = value
@@ -150,7 +183,7 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 			Columns: []string{transaction.WalletColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -180,6 +213,7 @@ func (tcb *TransactionCreateBulk) Save(ctx context.Context) ([]*Transaction, err
 	for i := range tcb.builders {
 		func(i int, root context.Context) {
 			builder := tcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TransactionMutation)
 				if !ok {
@@ -206,10 +240,6 @@ func (tcb *TransactionCreateBulk) Save(ctx context.Context) ([]*Transaction, err
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

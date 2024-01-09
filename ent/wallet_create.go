@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
 )
@@ -32,15 +33,29 @@ func (wc *WalletCreate) SetPaymentMethod(wm wallet.PaymentMethod) *WalletCreate 
 	return wc
 }
 
+// SetID sets the "id" field.
+func (wc *WalletCreate) SetID(u uuid.UUID) *WalletCreate {
+	wc.mutation.SetID(u)
+	return wc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (wc *WalletCreate) SetNillableID(u *uuid.UUID) *WalletCreate {
+	if u != nil {
+		wc.SetID(*u)
+	}
+	return wc
+}
+
 // AddTransactionIDs adds the "transactions" edge to the Transaction entity by IDs.
-func (wc *WalletCreate) AddTransactionIDs(ids ...int) *WalletCreate {
+func (wc *WalletCreate) AddTransactionIDs(ids ...uuid.UUID) *WalletCreate {
 	wc.mutation.AddTransactionIDs(ids...)
 	return wc
 }
 
 // AddTransactions adds the "transactions" edges to the Transaction entity.
 func (wc *WalletCreate) AddTransactions(t ...*Transaction) *WalletCreate {
-	ids := make([]int, len(t))
+	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -54,6 +69,7 @@ func (wc *WalletCreate) Mutation() *WalletMutation {
 
 // Save creates the Wallet in the database.
 func (wc *WalletCreate) Save(ctx context.Context) (*Wallet, error) {
+	wc.defaults()
 	return withHooks(ctx, wc.sqlSave, wc.mutation, wc.hooks)
 }
 
@@ -76,6 +92,14 @@ func (wc *WalletCreate) Exec(ctx context.Context) error {
 func (wc *WalletCreate) ExecX(ctx context.Context) {
 	if err := wc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (wc *WalletCreate) defaults() {
+	if _, ok := wc.mutation.ID(); !ok {
+		v := wallet.DefaultID()
+		wc.mutation.SetID(v)
 	}
 }
 
@@ -111,8 +135,13 @@ func (wc *WalletCreate) sqlSave(ctx context.Context) (*Wallet, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	wc.mutation.id = &_node.ID
 	wc.mutation.done = true
 	return _node, nil
@@ -121,8 +150,12 @@ func (wc *WalletCreate) sqlSave(ctx context.Context) (*Wallet, error) {
 func (wc *WalletCreate) createSpec() (*Wallet, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Wallet{config: wc.config}
-		_spec = sqlgraph.NewCreateSpec(wallet.Table, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(wallet.Table, sqlgraph.NewFieldSpec(wallet.FieldID, field.TypeUUID))
 	)
+	if id, ok := wc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := wc.mutation.Name(); ok {
 		_spec.SetField(wallet.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -139,7 +172,7 @@ func (wc *WalletCreate) createSpec() (*Wallet, *sqlgraph.CreateSpec) {
 			Columns: []string{wallet.TransactionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -168,6 +201,7 @@ func (wcb *WalletCreateBulk) Save(ctx context.Context) ([]*Wallet, error) {
 	for i := range wcb.builders {
 		func(i int, root context.Context) {
 			builder := wcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*WalletMutation)
 				if !ok {
@@ -194,10 +228,6 @@ func (wcb *WalletCreateBulk) Save(ctx context.Context) ([]*Wallet, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

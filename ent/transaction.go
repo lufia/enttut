@@ -9,22 +9,23 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
 )
 
-// Transaction is the model entity for the Transaction schema.
+// transactionを扱うテーブル
 type Transaction struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// WalletID holds the value of the "wallet_id" field.
-	WalletID int `json:"wallet_id,omitempty"`
-	// PaidDate holds the value of the "paid_date" field.
+	WalletID uuid.UUID `json:"wallet_id,omitempty"`
+	// お金を払った日付
 	PaidDate time.Time `json:"paid_date,omitempty"`
-	// Amount holds the value of the "amount" field.
+	// 数量(金額)
 	Amount int `json:"amount,omitempty"`
-	// Memo holds the value of the "memo" field.
+	// メモ
 	Memo string `json:"memo,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TransactionQuery when eager-loading is set.
@@ -59,12 +60,14 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case transaction.FieldID, transaction.FieldWalletID, transaction.FieldAmount:
+		case transaction.FieldAmount:
 			values[i] = new(sql.NullInt64)
 		case transaction.FieldMemo:
 			values[i] = new(sql.NullString)
 		case transaction.FieldPaidDate:
 			values[i] = new(sql.NullTime)
+		case transaction.FieldID, transaction.FieldWalletID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -81,16 +84,16 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case transaction.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				t.ID = *value
 			}
-			t.ID = int(value.Int64)
 		case transaction.FieldWalletID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field wallet_id", values[i])
-			} else if value.Valid {
-				t.WalletID = int(value.Int64)
+			} else if value != nil {
+				t.WalletID = *value
 			}
 		case transaction.FieldPaidDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {

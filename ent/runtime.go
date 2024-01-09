@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"github.com/google/uuid"
 	"github.com/lufia/enttut/ent/schema"
+	"github.com/lufia/enttut/ent/transaction"
 	"github.com/lufia/enttut/ent/wallet"
 )
 
@@ -11,10 +13,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	transactionFields := schema.Transaction{}.Fields()
+	_ = transactionFields
+	// transactionDescID is the schema descriptor for id field.
+	transactionDescID := transactionFields[0].Descriptor()
+	// transaction.DefaultID holds the default value on creation for the id field.
+	transaction.DefaultID = transactionDescID.Default.(func() uuid.UUID)
 	walletFields := schema.Wallet{}.Fields()
 	_ = walletFields
 	// walletDescName is the schema descriptor for name field.
-	walletDescName := walletFields[0].Descriptor()
+	walletDescName := walletFields[1].Descriptor()
 	// wallet.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	wallet.NameValidator = func() func(string) error {
 		validators := walletDescName.Validators
@@ -31,4 +39,8 @@ func init() {
 			return nil
 		}
 	}()
+	// walletDescID is the schema descriptor for id field.
+	walletDescID := walletFields[0].Descriptor()
+	// wallet.DefaultID holds the default value on creation for the id field.
+	wallet.DefaultID = walletDescID.Default.(func() uuid.UUID)
 }
