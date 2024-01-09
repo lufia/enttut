@@ -14,7 +14,7 @@ var (
 		{Name: "paid_date", Type: field.TypeTime},
 		{Name: "amount", Type: field.TypeInt},
 		{Name: "memo", Type: field.TypeString, Size: 2147483647},
-		{Name: "wallet_transactions", Type: field.TypeInt, Nullable: true},
+		{Name: "wallet_id", Type: field.TypeInt},
 	}
 	// TransactionsTable holds the schema information for the "transactions" table.
 	TransactionsTable = &schema.Table{
@@ -26,7 +26,7 @@ var (
 				Symbol:     "transactions_wallets_transactions",
 				Columns:    []*schema.Column{TransactionsColumns[4]},
 				RefColumns: []*schema.Column{WalletsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{

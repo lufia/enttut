@@ -29,6 +29,20 @@ func (tu *TransactionUpdate) Where(ps ...predicate.Transaction) *TransactionUpda
 	return tu
 }
 
+// SetWalletID sets the "wallet_id" field.
+func (tu *TransactionUpdate) SetWalletID(i int) *TransactionUpdate {
+	tu.mutation.SetWalletID(i)
+	return tu
+}
+
+// SetNillableWalletID sets the "wallet_id" field if the given value is not nil.
+func (tu *TransactionUpdate) SetNillableWalletID(i *int) *TransactionUpdate {
+	if i != nil {
+		tu.SetWalletID(*i)
+	}
+	return tu
+}
+
 // SetPaidDate sets the "paid_date" field.
 func (tu *TransactionUpdate) SetPaidDate(t time.Time) *TransactionUpdate {
 	tu.mutation.SetPaidDate(t)
@@ -78,20 +92,6 @@ func (tu *TransactionUpdate) SetNillableMemo(s *string) *TransactionUpdate {
 	return tu
 }
 
-// SetWalletID sets the "wallet" edge to the Wallet entity by ID.
-func (tu *TransactionUpdate) SetWalletID(id int) *TransactionUpdate {
-	tu.mutation.SetWalletID(id)
-	return tu
-}
-
-// SetNillableWalletID sets the "wallet" edge to the Wallet entity by ID if the given value is not nil.
-func (tu *TransactionUpdate) SetNillableWalletID(id *int) *TransactionUpdate {
-	if id != nil {
-		tu = tu.SetWalletID(*id)
-	}
-	return tu
-}
-
 // SetWallet sets the "wallet" edge to the Wallet entity.
 func (tu *TransactionUpdate) SetWallet(w *Wallet) *TransactionUpdate {
 	return tu.SetWalletID(w.ID)
@@ -135,7 +135,18 @@ func (tu *TransactionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tu *TransactionUpdate) check() error {
+	if _, ok := tu.mutation.WalletID(); tu.mutation.WalletCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Transaction.wallet"`)
+	}
+	return nil
+}
+
 func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := tu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
 	if ps := tu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -205,6 +216,20 @@ type TransactionUpdateOne struct {
 	mutation *TransactionMutation
 }
 
+// SetWalletID sets the "wallet_id" field.
+func (tuo *TransactionUpdateOne) SetWalletID(i int) *TransactionUpdateOne {
+	tuo.mutation.SetWalletID(i)
+	return tuo
+}
+
+// SetNillableWalletID sets the "wallet_id" field if the given value is not nil.
+func (tuo *TransactionUpdateOne) SetNillableWalletID(i *int) *TransactionUpdateOne {
+	if i != nil {
+		tuo.SetWalletID(*i)
+	}
+	return tuo
+}
+
 // SetPaidDate sets the "paid_date" field.
 func (tuo *TransactionUpdateOne) SetPaidDate(t time.Time) *TransactionUpdateOne {
 	tuo.mutation.SetPaidDate(t)
@@ -250,20 +275,6 @@ func (tuo *TransactionUpdateOne) SetMemo(s string) *TransactionUpdateOne {
 func (tuo *TransactionUpdateOne) SetNillableMemo(s *string) *TransactionUpdateOne {
 	if s != nil {
 		tuo.SetMemo(*s)
-	}
-	return tuo
-}
-
-// SetWalletID sets the "wallet" edge to the Wallet entity by ID.
-func (tuo *TransactionUpdateOne) SetWalletID(id int) *TransactionUpdateOne {
-	tuo.mutation.SetWalletID(id)
-	return tuo
-}
-
-// SetNillableWalletID sets the "wallet" edge to the Wallet entity by ID if the given value is not nil.
-func (tuo *TransactionUpdateOne) SetNillableWalletID(id *int) *TransactionUpdateOne {
-	if id != nil {
-		tuo = tuo.SetWalletID(*id)
 	}
 	return tuo
 }
@@ -324,7 +335,18 @@ func (tuo *TransactionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tuo *TransactionUpdateOne) check() error {
+	if _, ok := tuo.mutation.WalletID(); tuo.mutation.WalletCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Transaction.wallet"`)
+	}
+	return nil
+}
+
 func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transaction, err error) {
+	if err := tuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
 	id, ok := tuo.mutation.ID()
 	if !ok {

@@ -412,7 +412,9 @@ func (wq *WalletQuery) loadTransactions(ctx context.Context, query *TransactionQ
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(transaction.FieldWalletID)
+	}
 	query.Where(predicate.Transaction(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(wallet.TransactionsColumn), fks...))
 	}))
@@ -421,13 +423,10 @@ func (wq *WalletQuery) loadTransactions(ctx context.Context, query *TransactionQ
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.wallet_transactions
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "wallet_transactions" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.WalletID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "wallet_transactions" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "wallet_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

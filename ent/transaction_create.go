@@ -21,6 +21,12 @@ type TransactionCreate struct {
 	hooks    []Hook
 }
 
+// SetWalletID sets the "wallet_id" field.
+func (tc *TransactionCreate) SetWalletID(i int) *TransactionCreate {
+	tc.mutation.SetWalletID(i)
+	return tc
+}
+
 // SetPaidDate sets the "paid_date" field.
 func (tc *TransactionCreate) SetPaidDate(t time.Time) *TransactionCreate {
 	tc.mutation.SetPaidDate(t)
@@ -36,20 +42,6 @@ func (tc *TransactionCreate) SetAmount(i int) *TransactionCreate {
 // SetMemo sets the "memo" field.
 func (tc *TransactionCreate) SetMemo(s string) *TransactionCreate {
 	tc.mutation.SetMemo(s)
-	return tc
-}
-
-// SetWalletID sets the "wallet" edge to the Wallet entity by ID.
-func (tc *TransactionCreate) SetWalletID(id int) *TransactionCreate {
-	tc.mutation.SetWalletID(id)
-	return tc
-}
-
-// SetNillableWalletID sets the "wallet" edge to the Wallet entity by ID if the given value is not nil.
-func (tc *TransactionCreate) SetNillableWalletID(id *int) *TransactionCreate {
-	if id != nil {
-		tc = tc.SetWalletID(*id)
-	}
 	return tc
 }
 
@@ -92,6 +84,9 @@ func (tc *TransactionCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tc *TransactionCreate) check() error {
+	if _, ok := tc.mutation.WalletID(); !ok {
+		return &ValidationError{Name: "wallet_id", err: errors.New(`ent: missing required field "Transaction.wallet_id"`)}
+	}
 	if _, ok := tc.mutation.PaidDate(); !ok {
 		return &ValidationError{Name: "paid_date", err: errors.New(`ent: missing required field "Transaction.paid_date"`)}
 	}
@@ -100,6 +95,9 @@ func (tc *TransactionCreate) check() error {
 	}
 	if _, ok := tc.mutation.Memo(); !ok {
 		return &ValidationError{Name: "memo", err: errors.New(`ent: missing required field "Transaction.memo"`)}
+	}
+	if _, ok := tc.mutation.WalletID(); !ok {
+		return &ValidationError{Name: "wallet", err: errors.New(`ent: missing required edge "Transaction.wallet"`)}
 	}
 	return nil
 }
@@ -153,7 +151,7 @@ func (tc *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.wallet_transactions = &nodes[0]
+		_node.WalletID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -18,6 +18,8 @@ type Transaction struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// WalletID holds the value of the "wallet_id" field.
+	WalletID int `json:"wallet_id,omitempty"`
 	// PaidDate holds the value of the "paid_date" field.
 	PaidDate time.Time `json:"paid_date,omitempty"`
 	// Amount holds the value of the "amount" field.
@@ -26,9 +28,8 @@ type Transaction struct {
 	Memo string `json:"memo,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TransactionQuery when eager-loading is set.
-	Edges               TransactionEdges `json:"edges"`
-	wallet_transactions *int
-	selectValues        sql.SelectValues
+	Edges        TransactionEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // TransactionEdges holds the relations/edges for other nodes in the graph.
@@ -58,14 +59,12 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case transaction.FieldID, transaction.FieldAmount:
+		case transaction.FieldID, transaction.FieldWalletID, transaction.FieldAmount:
 			values[i] = new(sql.NullInt64)
 		case transaction.FieldMemo:
 			values[i] = new(sql.NullString)
 		case transaction.FieldPaidDate:
 			values[i] = new(sql.NullTime)
-		case transaction.ForeignKeys[0]: // wallet_transactions
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -87,6 +86,12 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			t.ID = int(value.Int64)
+		case transaction.FieldWalletID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field wallet_id", values[i])
+			} else if value.Valid {
+				t.WalletID = int(value.Int64)
+			}
 		case transaction.FieldPaidDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field paid_date", values[i])
@@ -104,13 +109,6 @@ func (t *Transaction) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field memo", values[i])
 			} else if value.Valid {
 				t.Memo = value.String
-			}
-		case transaction.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field wallet_transactions", value)
-			} else if value.Valid {
-				t.wallet_transactions = new(int)
-				*t.wallet_transactions = int(value.Int64)
 			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
@@ -153,6 +151,9 @@ func (t *Transaction) String() string {
 	var builder strings.Builder
 	builder.WriteString("Transaction(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
+	builder.WriteString("wallet_id=")
+	builder.WriteString(fmt.Sprintf("%v", t.WalletID))
+	builder.WriteString(", ")
 	builder.WriteString("paid_date=")
 	builder.WriteString(t.PaidDate.Format(time.ANSIC))
 	builder.WriteString(", ")

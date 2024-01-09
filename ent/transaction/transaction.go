@@ -12,6 +12,8 @@ const (
 	Label = "transaction"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldWalletID holds the string denoting the wallet_id field in the database.
+	FieldWalletID = "wallet_id"
 	// FieldPaidDate holds the string denoting the paid_date field in the database.
 	FieldPaidDate = "paid_date"
 	// FieldAmount holds the string denoting the amount field in the database.
@@ -28,32 +30,22 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "wallet" package.
 	WalletInverseTable = "wallets"
 	// WalletColumn is the table column denoting the wallet relation/edge.
-	WalletColumn = "wallet_transactions"
+	WalletColumn = "wallet_id"
 )
 
 // Columns holds all SQL columns for transaction fields.
 var Columns = []string{
 	FieldID,
+	FieldWalletID,
 	FieldPaidDate,
 	FieldAmount,
 	FieldMemo,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "transactions"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"wallet_transactions",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -66,6 +58,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByWalletID orders the results by the wallet_id field.
+func ByWalletID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWalletID, opts...).ToFunc()
 }
 
 // ByPaidDate orders the results by the paid_date field.

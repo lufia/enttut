@@ -55,6 +55,11 @@ func IDLTE(id int) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLTE(FieldID, id))
 }
 
+// WalletID applies equality check predicate on the "wallet_id" field. It's identical to WalletIDEQ.
+func WalletID(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldWalletID, v))
+}
+
 // PaidDate applies equality check predicate on the "paid_date" field. It's identical to PaidDateEQ.
 func PaidDate(v time.Time) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldPaidDate, v))
@@ -68,6 +73,26 @@ func Amount(v int) predicate.Transaction {
 // Memo applies equality check predicate on the "memo" field. It's identical to MemoEQ.
 func Memo(v string) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldMemo, v))
+}
+
+// WalletIDEQ applies the EQ predicate on the "wallet_id" field.
+func WalletIDEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldWalletID, v))
+}
+
+// WalletIDNEQ applies the NEQ predicate on the "wallet_id" field.
+func WalletIDNEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldWalletID, v))
+}
+
+// WalletIDIn applies the In predicate on the "wallet_id" field.
+func WalletIDIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldWalletID, vs...))
+}
+
+// WalletIDNotIn applies the NotIn predicate on the "wallet_id" field.
+func WalletIDNotIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldWalletID, vs...))
 }
 
 // PaidDateEQ applies the EQ predicate on the "paid_date" field.

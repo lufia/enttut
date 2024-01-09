@@ -145,6 +145,42 @@ func (m *TransactionMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetWalletID sets the "wallet_id" field.
+func (m *TransactionMutation) SetWalletID(i int) {
+	m.wallet = &i
+}
+
+// WalletID returns the value of the "wallet_id" field in the mutation.
+func (m *TransactionMutation) WalletID() (r int, exists bool) {
+	v := m.wallet
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWalletID returns the old "wallet_id" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldWalletID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWalletID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWalletID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWalletID: %w", err)
+	}
+	return oldValue.WalletID, nil
+}
+
+// ResetWalletID resets all changes to the "wallet_id" field.
+func (m *TransactionMutation) ResetWalletID() {
+	m.wallet = nil
+}
+
 // SetPaidDate sets the "paid_date" field.
 func (m *TransactionMutation) SetPaidDate(t time.Time) {
 	m.paid_date = &t
@@ -273,27 +309,15 @@ func (m *TransactionMutation) ResetMemo() {
 	m.memo = nil
 }
 
-// SetWalletID sets the "wallet" edge to the Wallet entity by id.
-func (m *TransactionMutation) SetWalletID(id int) {
-	m.wallet = &id
-}
-
 // ClearWallet clears the "wallet" edge to the Wallet entity.
 func (m *TransactionMutation) ClearWallet() {
 	m.clearedwallet = true
+	m.clearedFields[transaction.FieldWalletID] = struct{}{}
 }
 
 // WalletCleared reports if the "wallet" edge to the Wallet entity was cleared.
 func (m *TransactionMutation) WalletCleared() bool {
 	return m.clearedwallet
-}
-
-// WalletID returns the "wallet" edge ID in the mutation.
-func (m *TransactionMutation) WalletID() (id int, exists bool) {
-	if m.wallet != nil {
-		return *m.wallet, true
-	}
-	return
 }
 
 // WalletIDs returns the "wallet" edge IDs in the mutation.
@@ -346,7 +370,10 @@ func (m *TransactionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TransactionMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
+	if m.wallet != nil {
+		fields = append(fields, transaction.FieldWalletID)
+	}
 	if m.paid_date != nil {
 		fields = append(fields, transaction.FieldPaidDate)
 	}
@@ -364,6 +391,8 @@ func (m *TransactionMutation) Fields() []string {
 // schema.
 func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case transaction.FieldWalletID:
+		return m.WalletID()
 	case transaction.FieldPaidDate:
 		return m.PaidDate()
 	case transaction.FieldAmount:
@@ -379,6 +408,8 @@ func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case transaction.FieldWalletID:
+		return m.OldWalletID(ctx)
 	case transaction.FieldPaidDate:
 		return m.OldPaidDate(ctx)
 	case transaction.FieldAmount:
@@ -394,6 +425,13 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 // type.
 func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case transaction.FieldWalletID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWalletID(v)
+		return nil
 	case transaction.FieldPaidDate:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -479,6 +517,9 @@ func (m *TransactionMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TransactionMutation) ResetField(name string) error {
 	switch name {
+	case transaction.FieldWalletID:
+		m.ResetWalletID()
+		return nil
 	case transaction.FieldPaidDate:
 		m.ResetPaidDate()
 		return nil
