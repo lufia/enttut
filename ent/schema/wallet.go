@@ -22,7 +22,7 @@ func (Wallet) Fields() []ent.Field {
 				dialect.Postgres: "varchar(50)",
 			}).
 			Unique(),
-		field.String("method"),
+		field.Enum("payment_method").StorageKey("method").Values("cash", "credit-card", "e-money"),
 	}
 }
 
