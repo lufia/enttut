@@ -13,7 +13,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "paid_date", Type: field.TypeTime},
 		{Name: "amount", Type: field.TypeInt},
-		{Name: "memo", Type: field.TypeString, Size: 2147483647},
+		{Name: "memo", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "wallet_id", Type: field.TypeInt},
 	}
 	// TransactionsTable holds the schema information for the "transactions" table.

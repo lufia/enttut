@@ -92,6 +92,12 @@ func (tu *TransactionUpdate) SetNillableMemo(s *string) *TransactionUpdate {
 	return tu
 }
 
+// ClearMemo clears the value of the "memo" field.
+func (tu *TransactionUpdate) ClearMemo() *TransactionUpdate {
+	tu.mutation.ClearMemo()
+	return tu
+}
+
 // SetWallet sets the "wallet" edge to the Wallet entity.
 func (tu *TransactionUpdate) SetWallet(w *Wallet) *TransactionUpdate {
 	return tu.SetWalletID(w.ID)
@@ -166,6 +172,9 @@ func (tu *TransactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.Memo(); ok {
 		_spec.SetField(transaction.FieldMemo, field.TypeString, value)
+	}
+	if tu.mutation.MemoCleared() {
+		_spec.ClearField(transaction.FieldMemo, field.TypeString)
 	}
 	if tu.mutation.WalletCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -279,6 +288,12 @@ func (tuo *TransactionUpdateOne) SetNillableMemo(s *string) *TransactionUpdateOn
 	return tuo
 }
 
+// ClearMemo clears the value of the "memo" field.
+func (tuo *TransactionUpdateOne) ClearMemo() *TransactionUpdateOne {
+	tuo.mutation.ClearMemo()
+	return tuo
+}
+
 // SetWallet sets the "wallet" edge to the Wallet entity.
 func (tuo *TransactionUpdateOne) SetWallet(w *Wallet) *TransactionUpdateOne {
 	return tuo.SetWalletID(w.ID)
@@ -383,6 +398,9 @@ func (tuo *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transactio
 	}
 	if value, ok := tuo.mutation.Memo(); ok {
 		_spec.SetField(transaction.FieldMemo, field.TypeString, value)
+	}
+	if tuo.mutation.MemoCleared() {
+		_spec.ClearField(transaction.FieldMemo, field.TypeString)
 	}
 	if tuo.mutation.WalletCleared() {
 		edge := &sqlgraph.EdgeSpec{

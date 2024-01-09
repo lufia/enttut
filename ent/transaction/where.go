@@ -230,6 +230,16 @@ func MemoHasSuffix(v string) predicate.Transaction {
 	return predicate.Transaction(sql.FieldHasSuffix(FieldMemo, v))
 }
 
+// MemoIsNil applies the IsNil predicate on the "memo" field.
+func MemoIsNil() predicate.Transaction {
+	return predicate.Transaction(sql.FieldIsNull(FieldMemo))
+}
+
+// MemoNotNil applies the NotNil predicate on the "memo" field.
+func MemoNotNil() predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotNull(FieldMemo))
+}
+
 // MemoEqualFold applies the EqualFold predicate on the "memo" field.
 func MemoEqualFold(v string) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEqualFold(FieldMemo, v))

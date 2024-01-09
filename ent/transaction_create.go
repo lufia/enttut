@@ -45,6 +45,14 @@ func (tc *TransactionCreate) SetMemo(s string) *TransactionCreate {
 	return tc
 }
 
+// SetNillableMemo sets the "memo" field if the given value is not nil.
+func (tc *TransactionCreate) SetNillableMemo(s *string) *TransactionCreate {
+	if s != nil {
+		tc.SetMemo(*s)
+	}
+	return tc
+}
+
 // SetWallet sets the "wallet" edge to the Wallet entity.
 func (tc *TransactionCreate) SetWallet(w *Wallet) *TransactionCreate {
 	return tc.SetWalletID(w.ID)
@@ -92,9 +100,6 @@ func (tc *TransactionCreate) check() error {
 	}
 	if _, ok := tc.mutation.Amount(); !ok {
 		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Transaction.amount"`)}
-	}
-	if _, ok := tc.mutation.Memo(); !ok {
-		return &ValidationError{Name: "memo", err: errors.New(`ent: missing required field "Transaction.memo"`)}
 	}
 	if _, ok := tc.mutation.WalletID(); !ok {
 		return &ValidationError{Name: "wallet", err: errors.New(`ent: missing required edge "Transaction.wallet"`)}
